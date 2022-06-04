@@ -8,8 +8,8 @@ app.set('view engine','ejs'); //Setting up EJS Engine
 
 app.use('/',router);
 
-app.listen(3002,()=>{
+app.listen(3003,()=>{
 
-console.log("App Connected to localhost:3002");
+console.log("App Connected to localhost:3003");
 
 });
