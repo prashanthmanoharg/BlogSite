@@ -23,6 +23,34 @@ User.prototype.cleanUp = function() {
 }
 
 
+User.prototype.login = function(){
+  
+    return new Promise( (resolve, reject) => {
+    
+        this.cleanUp()
+        usersCollection.findOne({username: this.data.username}).then((attemptedUser)=>{
+
+            if (attemptedUser && attemptedUser.password == this.data.password) 
+            {
+                    resolve("Successful Login");    
+
+            } 
+
+        else 
+            {
+                reject("Invalid Credentials");    
+            }
+
+        }).catch(function(){
+
+                    reject("Please try again later.");
+
+        })
+
+    })
+
+}
+
 User.prototype.validate = function() {
 if (this.data.username=="") {this.errors.push("You must provide a username")}
 if(this.data.username != "" && !validator.isAlphanumeric(this.data.username)) {this.errors.push("Username can contain only numeric and numbers")}
