@@ -1,4 +1,5 @@
-const usersCollection = require('../db').collection("users");
+const bcrypt = require("bcryptjs");
+const usersCollection = require('../db').db().collection("users");
 const validator = require("validator")
 
 let User = function(data){
@@ -28,11 +29,10 @@ User.prototype.login = function(){
     return new Promise( (resolve, reject) => {
     
         this.cleanUp()
-        usersCollection.findOne({username: this.data.username}).then((attemptedUser)=>{
-
-            if (attemptedUser && attemptedUser.password == this.data.password) 
+        usersCollection.findOne({username: this.data.username}).then((attemptedUser) => {
+            if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) 
             {
-                    resolve("Successful Login");    
+                    resolve("Congrats");    
 
             } 
 
@@ -57,7 +57,7 @@ if(this.data.username != "" && !validator.isAlphanumeric(this.data.username)) {t
 if (!validator.isEmail(this.data.email)) {this.errors.push("You must provide a valid email address")}
 if (this.data.password=="") {this.errors.push("You must provide a valid password")}
 if( this.data.password.length > 0  && this.data.password.length<12) {this.errors.push("Password must be atleast 12 characters")}
-if(this.data.password.length> 100) {this.errors.push("Password cannot exceed one hundred characters")}
+if(this.data.password.length> 50) {this.errors.push("Password cannot exceed 50 characters")}
 if(this.data.username.length > 0  && this.data.username.length<3) {this.errors.push("username atleast 3 characters")}
 if(this.data.username.length> 30) {this.errors.push("Username cannot exceed 30 characters")}
 
@@ -73,6 +73,9 @@ this.validate()
 //Step-2: Only if there are no valdiation errors then save the user data into a database
 
 if(!this.errors.length) {
+    //hash user password
+    let salt = bcrypt.genSaltSync(10)
+    this.data.password = bcrypt.hashSync(this.data.password, salt)
     usersCollection.insertOne(this.data)
 
 
